@@ -26,6 +26,12 @@ type INotificationHandler<Cmd extends INotification<unknown> = INotification<unk
   handle(cmd: Cmd): void | Promise<void>;
 };
 
+interface TypedMap extends Map<IRequestType | INotificationType, IRequestHandler | INotificationHandler[]> {
+  get(key: IRequestType): IRequestHandler | undefined;
+  get(key: INotificationType): INotificationHandler[] | undefined;
+  get(key: IRequestType | INotificationType): IRequestHandler | INotificationHandler[] | undefined;
+}
+
 export enum CmdType {
   /** With this type, you can register only one handler for a command. */
   Request = 0,
@@ -36,46 +42,50 @@ export enum CmdType {
 const isRequestCmd = <T, R>(cmd: IRequestType<T, R> | INotificationType<T>): cmd is IRequestType<T, R> =>
   cmd.type === CmdType.Request;
 
+const isRequestHandler = <T, R>(
+  handler: IRequestHandler<IRequest<T, R>> | INotificationHandler<INotification<T>>
+): handler is IRequestHandler<IRequest<T, R>> => isRequestCmd(handler.cmdType);
+
 class Mediator {
-  private messages: Map<IRequestType | INotificationType, IRequestHandler | INotificationHandler[]> = new Map();
+  static instance = new Mediator();
+
+  private messages: TypedMap = new Map();
+
+  constructor() {
+    return Mediator.instance;
+  }
 
   send<T, R>(cmd: IRequest<T, R>): R | Promise<R>;
   send<T, R>(cmd: INotification<T>): void | Promise<void>;
   send<T, R>(cmd: IRequest<T, R> | INotification<T>) {
-    const cmdType = cmd.constructor as IRequestType | INotificationType;
-
-    if (isRequestCmd(cmdType)) {
-      const handler = this.messages.get(cmdType) as IRequestHandler<IRequest<T, R>> | undefined;
-      return (handler as IRequestHandler<typeof cmd>)?.handle(cmd);
-    }
-
-    const handler = this.messages.get(cmdType) as INotificationHandler<INotification<T>> | undefined;
-    return (handler as INotificationHandler<typeof cmd>)?.handle(cmd);
+    const handlers = this.messages.get(cmd.constructor as IRequestType | INotificationType);
+    if (Array.isArray(handlers)) {
+      const tasks = handlers.map(handler => handler.handle(cmd));
+      if (tasks.some(t => t instanceof Promise)) {
+        return Promise.all(tasks);
+      }
+    } else return handlers?.handle(cmd);
   }
 
   sub<T, R>(handler: IRequestHandler<IRequest<T, R>> | INotificationHandler<INotification<T>>) {
-    const cmdType = handler.cmdType as IRequestType | INotificationType;
-
-    if (isRequestCmd(cmdType)) {
-      this.messages.set(cmdType, handler as IRequestHandler<IRequest<T, R>>);
+    if (isRequestHandler(handler)) {
+      this.messages.set(handler.cmdType, handler);
     } else {
-      if (this.messages.has(cmdType)) {
-        (this.messages.get(cmdType) as INotificationHandler<INotification<T>>[]).push(
-          handler as INotificationHandler<INotification<T>>
-        );
+      if (this.messages.has(handler.cmdType)) {
+        this.messages.get(handler.cmdType)?.push(handler);
       } else {
-        this.messages.set(cmdType, [handler as INotificationHandler<INotification<T>>]);
+        this.messages.set(handler.cmdType, [handler]);
       }
     }
   }
 
   unsub(handler: IRequestHandler<IRequest<unknown, unknown>> | INotificationHandler<INotification<unknown>>) {
-    if (isRequestCmd(handler.cmdType)) {
+    if (isRequestHandler(handler)) {
       this.messages.delete(handler.cmdType);
     } else {
-      const handlers = this.messages.get(handler.cmdType) as INotificationHandler<INotification<unknown>>[];
-      if (handlers?.length > 1) {
-        handlers.splice(handlers.indexOf(handler as INotificationHandler<INotification<unknown>>), 1);
+      const handlers = this.messages.get(handler.cmdType);
+      if (handlers && handlers.length > 1) {
+        handlers.splice(handlers.indexOf(handler), 1);
       } else {
         this.messages.delete(handler.cmdType);
       }
@@ -83,10 +93,8 @@ class Mediator {
   }
 }
 
-const mediator = new Mediator();
-
 class Emitter<T, R> {
-  private mediator = mediator;
+  private mediator = new Mediator();
   private logger: ((msg: { payload: T }) => void) | undefined;
   private cmdType: IRequestType<T, R> | INotificationType<T>;
 
@@ -118,10 +126,12 @@ class Emitter<T, R> {
   sub(
     handle: R extends {} ? IRequestHandler<IRequest<T, R>>['handle'] : INotificationHandler<INotification<T>>['handle']
   ): () => void {
-    const handler = { cmdType: this.cmdType, handle };
+    const handler = { cmdType: this.cmdType, handle } as R extends {}
+      ? IRequestHandler<IRequest<T, R>>
+      : INotificationHandler<INotification<T>>;
 
-    this.mediator.sub(handler as Parameters<Mediator['sub']>[0]);
-    return () => this.mediator.unsub(handler as Parameters<Mediator['unsub']>[0]);
+    this.mediator.sub(handler);
+    return () => this.mediator.unsub(handler);
   }
 }
 
@@ -130,3 +140,8 @@ export const createEmitter: {
   <T>(cmdType: CmdType.Notification, logger?: (msg: ICmd<T, void>) => void): Emitter<T, void>;
 } = <T, R>(cmdType: CmdType = CmdType.Request, logger?: (msg: ICmd<T, R>) => void) =>
   new Emitter<T, R>(cmdType, logger);
+
+export const mergeRegister =
+  (...unregisterList: (() => void)[]) =>
+  () =>
+    unregisterList.forEach(unregister => unregister());
