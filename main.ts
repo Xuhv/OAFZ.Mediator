@@ -62,7 +62,7 @@ class Mediator {
     if (Array.isArray(handlers)) {
       const tasks = handlers.map(handler => handler.handle(cmd));
       if (tasks.some(t => t instanceof Promise)) {
-        return Promise.all(tasks);
+        return Promise.all(tasks).then(() => {});
       }
     } else return handlers?.handle(cmd);
   }
