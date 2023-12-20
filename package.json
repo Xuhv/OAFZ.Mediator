@@ -1,11 +1,15 @@
 {
   "name": "@oafz/mediator",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "module": "main.js",
   "types": "main.d.ts",
   "type": "module",
   "license": "MIT",
   "devDependencies": {
     "typescript": "^5.3.2"
-  }
+  },
+  "files": [
+    "main.ts",
+    "example.ts"
+  ]
 }

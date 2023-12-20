@@ -123,9 +123,7 @@ class Emitter<T, R> {
     return this.mediator.send(new this.cmdType(payload));
   }
 
-  sub(
-    handle: R extends {} ? IRequestHandler<IRequest<T, R>>['handle'] : INotificationHandler<INotification<T>>['handle']
-  ): () => void {
+  sub(handle: (cmd: ICmd<T, R>) => R | Promise<R>): () => void {
     const handler = { cmdType: this.cmdType, handle } as R extends {}
       ? IRequestHandler<IRequest<T, R>>
       : INotificationHandler<INotification<T>>;
