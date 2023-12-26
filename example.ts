@@ -1,42 +1,54 @@
-import { createEmitter, CmdType, mergeRegister } from './main.ts';
+import { createRequestEmitter, createNotificationEmitter } from "./main.ts";
 
-/* --------------------------------- Request -------------------------------- */
+// request can only has one handler
 
-const emitter1 = createEmitter<string, string>(CmdType.Request, msg => console.log('send:', msg.payload));
+const requester1 = createRequestEmitter<{ name: string }, { ok: boolean }>();
 
-console.log('emitter1 subscribing...');
-const unsubscribe = emitter1.sub(({ payload }) => {
-  console.log(`emitter1 exec ${payload}`);
-  return `[result ${payload}]`;
+requester1.receive(async (cmd) => {
+  console.log("rec1", cmd);
+  return { ok: true };
 });
 
-let counter = 0;
+requester1.send({ name: "test1" });
 
-setTimeout(async () => {
-  const result = await emitter1.send(`[event ${++counter}]`);
-  console.log('result:', result);
-  unsubscribe();
-  console.log('emitter1 unsubscribed');
-}, 1000);
+requester1.receive(async (cmd) => {
+  console.log("rec2", cmd);
+  return { ok: true };
+});
 
-/* ------------------------------ Notification ------------------------------ */
+requester1.send({ name: "test2" });
 
-const emitter2 = createEmitter<string>(CmdType.Notification, msg => console.log('send:', msg.payload));
+// a logger and klassName name can be set
 
-console.log('emitter2 subscribing...');
-const unsubscribe2 = mergeRegister(
-  emitter2.sub(async ({ payload }) => {
-    return Promise.resolve().then(() => {
-      console.log(`handler2.1 exec ${payload}`);
-    });
-  }),
-  emitter2.sub(({ payload }) => {
-    console.log(`handler2.2 exec ${payload}`);
-  })
-);
+const requester2 = createRequestEmitter<{ name: string }, { ok: boolean }>({
+  name: "test",
+  logger: async (cmd) => {
+    console.log("log", cmd);
+  },
+});
 
-setTimeout(async () => {
-  await emitter2.send(`[event ${++counter}]`);
-  unsubscribe2();
-  console.log('emitter2 unsubscribed');
-}, 1000);
+requester2.receive(async (cmd) => {
+  return { ok: true };
+});
+
+// request has result
+
+console.log("request result:", await requester2.send({ name: "test result" }));
+
+// notification can have multiple handlers but no result
+
+const notifier = createNotificationEmitter<{ name: string }>({
+  name: "test notification",
+  async logger(cmd) {
+    console.log("log notification", cmd);
+  },
+});
+
+notifier.receive(async (cmd) => {
+  console.log("rec1 notification", cmd);
+});
+notifier.receive(async (cmd) => {
+  console.log("rec2 notification", cmd);
+});
+
+console.log("notification result:", await notifier.send({ name: "test notification" }));

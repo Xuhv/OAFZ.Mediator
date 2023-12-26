@@ -1,6 +1,6 @@
 {
   "name": "@oafz/mediator",
-  "version": "0.2.2",
+  "version": "0.3.0",
   "module": "main.js",
   "types": "main.d.ts",
   "type": "module",
