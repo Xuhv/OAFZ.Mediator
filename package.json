@@ -1,15 +1,19 @@
 {
   "name": "@oafz/mediator",
-  "version": "0.3.0",
-  "module": "main.js",
-  "types": "main.d.ts",
+  "version": "0.4.0",
+  "module": "main.ts",
   "type": "module",
   "license": "MIT",
   "devDependencies": {
+    "@types/lodash-es": "^4.17.12",
+    "@types/react": "^18.2.48",
+    "lodash-es": "^4.17.21",
+    "react": "^18.2.0",
+    "react-router-dom": "^6.21.3",
     "typescript": "^5.3.2"
   },
   "files": [
     "main.ts",
-    "example.ts"
+    "react-plugins/**"
   ]
 }
