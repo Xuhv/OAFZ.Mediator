@@ -1,11 +1,11 @@
-import { createRequestEmitter } from "../main.js";
+import { createRequestEmitter, createNotificationEmitter } from "../main.js";
 import { useEffect, useRef } from "react";
 import { useMatches, useSearchParams } from "react-router-dom";
 import { isEqual } from "lodash-es";
 
-type QueryState = Record<string, string | string[]>;
+export type QueryState = Record<string, string | string[]>;
 
-export const queryChangedRequester = createRequestEmitter<QueryState, void>({ name: "queryChanged" });
+export const queryChangedNotifier = createNotificationEmitter<QueryState>({ name: "queryChanged" });
 
 export const changeQueryRequester = createRequestEmitter<
   {
@@ -32,9 +32,10 @@ export function searchToObject(search: URLSearchParams) {
   return query;
 }
 
-export function objectToSearch(query: QueryState) {
+export function objectToSearch(query: QueryState, ignoreEmpty = true) {
   const search = new URLSearchParams();
   Object.entries(query).forEach(([key, value]) => {
+    if (ignoreEmpty && value === "") return;
     if (Array.isArray(value)) value.forEach((v) => search.append(key, v));
     else search.append(key, value);
   });
@@ -54,7 +55,7 @@ export function SearchParamsPlugin() {
     const query = searchToObject(searchParams);
 
     Promise.resolve().then(() => {
-      queryChangedRequester.send(query);
+      queryChangedNotifier.send(query);
     });
 
     return changeQueryRequester.receive(
