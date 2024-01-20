@@ -1,8 +1,6 @@
 {
   "name": "@oafz/mediator",
   "version": "0.4.0",
-  "module": "main.ts",
-  "type": "module",
   "license": "MIT",
   "devDependencies": {
     "@types/lodash-es": "^4.17.12",
