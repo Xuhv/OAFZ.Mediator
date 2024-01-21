@@ -1,11 +1,11 @@
-import { createRequestEmitter, createNotificationEmitter } from "../main.js";
-import { useEffect, useRef } from "react";
-import { useMatches, useSearchParams } from "react-router-dom";
-import { isEqual } from "lodash-es";
+import { createRequestEmitter, createNotificationEmitter } from '@oafz/mediator';
+import { useEffect, useRef } from 'react';
+import { useMatches, useSearchParams } from 'react-router-dom';
+import { isEqual } from 'lodash-es';
 
 export type QueryState = Record<string, string | string[]>;
 
-export const queryChangedNotifier = createNotificationEmitter<QueryState>({ name: "queryChanged" });
+export const queryChangedNotifier = createNotificationEmitter<QueryState>({ name: 'queryChanged' });
 
 export const changeQueryRequester = createRequestEmitter<
   {
@@ -13,11 +13,11 @@ export const changeQueryRequester = createRequestEmitter<
     /**
      * @default "replace"
      */
-    mode?: "replace" | "merge";
+    mode?: 'replace' | 'merge';
     force?: boolean;
   },
   void
->({ name: "changeQuery" });
+>({ name: 'changeQuery' });
 
 export function searchToObject(search: URLSearchParams) {
   const query: QueryState = {};
@@ -35,8 +35,8 @@ export function searchToObject(search: URLSearchParams) {
 export function objectToSearch(query: QueryState, ignoreEmpty = true) {
   const search = new URLSearchParams();
   Object.entries(query).forEach(([key, value]) => {
-    if (ignoreEmpty && value === "") return;
-    if (Array.isArray(value)) value.forEach((v) => search.append(key, v));
+    if (ignoreEmpty && value === '') return;
+    if (Array.isArray(value)) value.forEach(v => search.append(key, v));
     else search.append(key, value);
   });
   return search;
@@ -58,19 +58,16 @@ export function SearchParamsPlugin() {
       queryChangedNotifier.send(query);
     });
 
-    return changeQueryRequester.receive(
-      async ({ payload: { query, force, mode } }) => {
-        let finalQuery: QueryState = {};
-        if (mode === "merge")
-          finalQuery = { ...searchToObject(searchParams), ...query };
-        else finalQuery = query;
+    return changeQueryRequester.receive(async ({ payload: { query, force, mode } }) => {
+      let finalQuery: QueryState = {};
+      if (mode === 'merge') finalQuery = { ...searchToObject(searchParams), ...query };
+      else finalQuery = query;
 
-        if (!isEqual(finalQuery, searchRef.current) || force) {
-          searchRef.current = finalQuery;
-          setSearchParams(objectToSearch(finalQuery));
-        }
+      if (!isEqual(finalQuery, searchRef.current) || force) {
+        searchRef.current = finalQuery;
+        setSearchParams(objectToSearch(finalQuery));
       }
-    );
+    });
   }, [searchParams, setSearchParams, searchRef, matchedRoute]);
 
   return null;

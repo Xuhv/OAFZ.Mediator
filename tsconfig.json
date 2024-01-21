@@ -5,6 +5,7 @@
     "strict": true,
     "moduleResolution": "Bundler",
     "allowImportingTsExtensions": true,
+    "jsx": "react-jsx",
     "noEmit": true
   }
 }

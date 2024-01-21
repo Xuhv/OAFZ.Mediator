@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { NavigateOptions, Path, useNavigate } from 'react-router-dom';
-import { createRequestEmitter } from '../main.js';
+import { createRequestEmitter } from '@oafz/mediator';
 
 export const navigateRequester = createRequestEmitter<
   | string

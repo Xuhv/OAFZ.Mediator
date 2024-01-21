@@ -17,6 +17,12 @@ jobs:
         with:
           node-version: 20
           registry-url: https://registry.npmjs.org/
-      - run: npm publish --access=public
+
+      - uses: pnpm/action-setup@v2
+        name: Install pnpm
+        with:
+          version: 8
+          run_install: false
+      - run: pnpm publish -r --access=public
         env:
           NODE_AUTH_TOKEN: ${{secrets.NPM_API_TOKEN}}
