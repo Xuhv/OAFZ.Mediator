@@ -23,6 +23,9 @@ jobs:
         with:
           version: 8
           run_install: false
+
+      - run: pnpm install
+
       - run: pnpm publish -r --access=public --no-git-checks
         env:
           NODE_AUTH_TOKEN: ${{secrets.NPM_API_TOKEN}}
