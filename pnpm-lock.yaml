@@ -22,6 +22,9 @@ importers:
       '@oafz/mediator':
         specifier: workspace:*
         version: link:../core
+      '@oafz/react-paginate':
+        specifier: workspace:*
+        version: link:../react-paginate
     devDependencies:
       '@types/lodash-es':
         specifier: ^4.17.12
@@ -29,9 +32,6 @@ importers:
       '@types/react':
         specifier: ^18.2.48
         version: 18.2.48
-      '@types/react-paginate':
-        specifier: ^7.1.4
-        version: 7.1.4
       lodash-es:
         specifier: ^4.17.21
         version: 4.17.21
@@ -41,9 +41,6 @@ importers:
       react-hook-form:
         specifier: ^7.49.3
         version: 7.49.3(react@18.2.0)
-      react-paginate:
-        specifier: ^8.2.0
-        version: 8.2.0(react@18.2.0)
       react-router-dom:
         specifier: ^6.21.3
         version: 6.21.3(react-dom@18.2.0)(react@18.2.0)
@@ -87,6 +84,24 @@ importers:
       typescript:
         specifier: ^5.2.2
         version: 5.3.2
+      vite:
+        specifier: ^5.0.8
+        version: 5.0.12
+
+  packages/react-paginate:
+    devDependencies:
+      '@types/prop-types':
+        specifier: ^15.7.11
+        version: 15.7.11
+      '@types/react':
+        specifier: ^18.2.48
+        version: 18.2.48
+      prop-types:
+        specifier: ^15.8.1
+        version: 15.8.1
+      react:
+        specifier: ^18.2.0
+        version: 18.2.0
       vite:
         specifier: ^5.0.8
         version: 5.0.12
@@ -2330,12 +2345,6 @@ packages:
     dependencies:
       '@types/react': 18.2.48
 
-  /@types/react-paginate@7.1.4:
-    resolution: {integrity: sha512-6fqZvDzRJHubOGl6c7cGFC9ysgQSWYy0Gpus9HjORpydlcXgPnT8x+aKgqwCdtpZrRTwcBz2Q7JWAOYaRrsXGg==}
-    dependencies:
-      '@types/react': 18.2.48
-    dev: true
-
   /@types/react@18.2.48:
     resolution: {integrity: sha512-qboRCl6Ie70DQQG9hhNREz81jqC1cs9EVNcjQ1AU+jH6NFfSAhVVbrrY/+nSF+Bsk4AOwm9Qa61InvMCyV+H3w==}
     dependencies:
@@ -3599,15 +3608,6 @@ packages:
   /react-is@17.0.2:
     resolution: {integrity: sha512-w2GsyukL62IJnlaff/nRegPQR94C/XXamvMWmSHRJ4y7Ts/4ocGRmTHvOs8PSE6pB3dWOrD/nueuU5sduBsQ4w==}
     dev: false
-
-  /react-paginate@8.2.0(react@18.2.0):
-    resolution: {integrity: sha512-sJCz1PW+9PNIjUSn919nlcRVuleN2YPoFBOvL+6TPgrH/3lwphqiSOgdrLafLdyLDxsgK+oSgviqacF4hxsDIw==}
-    peerDependencies:
-      react: ^16 || ^17 || ^18
-    dependencies:
-      prop-types: 15.8.1
-      react: 18.2.0
-    dev: true
 
   /react-refresh@0.14.0:
     resolution: {integrity: sha512-wViHqhAd8OHeLS/IRMJjTSDHF3U9eWi62F/MledQGPdJGDhodXJ9PBLNGr6WWL7qlH12Mt3TyTpbS+hGXMjCzQ==}

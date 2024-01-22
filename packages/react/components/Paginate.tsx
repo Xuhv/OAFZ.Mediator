@@ -1,4 +1,4 @@
-import ReactPaginate, { ReactPaginateProps } from 'react-paginate';
+import ReactPaginate, { ReactPaginateProps } from '@oafz/react-paginate';
 import { changeQueryRequester, queryChangedNotifier } from '../plugins/SearchChangePlugin';
 import { ReactNode, useEffect, useState } from 'react';
 

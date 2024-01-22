@@ -1,6 +1,6 @@
 type Cmd = IRequest | INotification;
 
-export interface IRequest<Payload = unknown, Result = unknown> {
+export interface IRequest<Payload = unknown, _Result = unknown> {
   klass: IRequestKlass;
   payload: Payload;
 }

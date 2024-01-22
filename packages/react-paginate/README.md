@@ -1,0 +1,1 @@
+An esm build of `AdeleD/react-paginate`
