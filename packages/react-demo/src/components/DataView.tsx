@@ -9,7 +9,7 @@ import {
   DataGridRow,
   createTableColumn
 } from '@fluentui/react-components';
-import { ODataView, ODataViewProps } from '@oafz/mediator-react/components/ODataView';
+import { DataView as ODataView, DataViewProps as ODataViewProps } from '@oafz/mediator-react/components/DataView';
 import { omit } from 'lodash-es';
 
 type RowData = { [k: string]: any };

@@ -1,16 +1,12 @@
-import { ReactNode, useRef } from 'react';
+import { ReactNode, useEffect, useRef } from 'react';
 import { Control, FieldValues, Path, UseFormProps, useForm } from 'react-hook-form';
-import { changeQueryRequester } from '../plugins/SearchChangePlugin';
+import { changeQueryRequester, queryChangedNotifier } from '../plugins/SearchChangePlugin';
 import { mergeRefs } from '../utils/mergeRefs';
 import { omit } from 'lodash-es';
 
-interface OFilterProps<T extends FieldValues>
-  extends React.DetailedHTMLProps<React.FormHTMLAttributes<HTMLFormElement>, HTMLFormElement> {
+interface FilterProps<T extends FieldValues>
+  extends Omit<React.DetailedHTMLProps<React.FormHTMLAttributes<HTMLFormElement>, HTMLFormElement>, 'onSubmit'> {
   ref?: ((instance: HTMLFormElement | null) => void) | React.RefObject<HTMLFormElement>;
-  /**
-   * It has been implemented in this component, don't use it.
-   */
-  onSubmit?: undefined;
   useFormProps?: UseFormProps<T, any>;
   formRender?: (control: Control<T, Path<T>>) => ReactNode;
   submitButton?: ReactNode;
@@ -18,16 +14,30 @@ interface OFilterProps<T extends FieldValues>
 }
 
 /**
- * The component depends on SearchParamsPlugin.
- * Something should be noted is all fields will be set to '' when reset.
+ * The component is built on react-hook-form. Something notable:
+ * 
+ * 1. The component depends on SearchParamsPlugin.
+ * 
+ * 2. All fields will be set to '' when reset.
+ * 
+ * 3. Every field needs a default value.
  * @param props
  * @returns
  */
-export function OFilter<T extends FieldValues>(props: OFilterProps<T>) {
-  const { control, handleSubmit, reset } = useForm(props.useFormProps);
-  const formProps = omit(props, ['useFormProps', 'formRender', 'submitButtonRender', 'resetButtonRender']);
+export function Filter<T extends FieldValues>(props: FilterProps<T>) {
+  const { control, handleSubmit, reset, setValue, getValues } = useForm(props.useFormProps);
+  const formProps = omit(props, ['useFormProps', 'formRender', 'submitButton', 'resetButton']);
   const _formRef = useRef<HTMLFormElement>(null);
   const formRef = props.ref ? mergeRefs(props.ref, _formRef) : _formRef;
+
+  useEffect(() => {
+    return queryChangedNotifier.receive(async ({ payload }) => {
+      for (const key in getValues()) {
+        // @ts-expect-error
+        if (payload[key]) setValue(key, payload[key]);
+      }
+    });
+  }, []);
 
   const filter = () => _formRef.current?.requestSubmit();
   const resetAndFilter = () => {

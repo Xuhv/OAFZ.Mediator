@@ -1,6 +1,6 @@
 import { Button } from '@fluentui/react-components';
 import { ArrowNext24Regular, ArrowPrevious24Regular, MoreHorizontal24Regular } from '@fluentui/react-icons';
-import { OPaginate } from '@oafz/mediator-react/components/OPaginate';
+import { Paginate as OPaginate } from '@oafz/mediator-react/components/Paginate';
 
 export function Paginate({ pageCount }: { pageCount: number }) {
   return (

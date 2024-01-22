@@ -2,7 +2,8 @@ import ReactPaginate, { ReactPaginateProps } from 'react-paginate';
 import { changeQueryRequester, queryChangedNotifier } from '../plugins/SearchChangePlugin';
 import { ReactNode, useEffect, useState } from 'react';
 
-export interface OPaginateProps extends Omit<ReactPaginateProps, 'pageLabelBuilder'> {
+export interface PaginateProps
+  extends Omit<ReactPaginateProps, 'pageLabelBuilder' | 'onClick' | 'onPageChange' | 'forcePage'> {
   /**
    * The field name of the page number, which will be present in the URL search.
    * @default "page"
@@ -10,18 +11,6 @@ export interface OPaginateProps extends Omit<ReactPaginateProps, 'pageLabelBuild
   pageField?: string;
 
   pageLabelBuilder?(pageIndex: number, isActive: boolean): ReactNode;
-  /**
-   * It has been implemented in this component, don't use it.
-   */
-  onClick?: undefined;
-  /**
-   * It has been implemented in this component, don't use it.
-   */
-  onPageChange?: undefined;
-  /**
-   * It has been implemented in this component, don't use it.
-   */
-  forcePage?: undefined;
 }
 
 /**
@@ -29,7 +18,7 @@ export interface OPaginateProps extends Omit<ReactPaginateProps, 'pageLabelBuild
  * @param props
  * @returns
  */
-export function OPaginate(props: OPaginateProps) {
+export function Paginate(props: PaginateProps) {
   const [forcePage, setForcePage] = useState(0);
 
   useEffect(() => {

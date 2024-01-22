@@ -1,6 +1,6 @@
 import { Button, Field, FieldProps, Input } from '@fluentui/react-components';
 import { Search24Regular, ArrowReset24Regular } from '@fluentui/react-icons';
-import { OFilter } from '@oafz/mediator-react/components/OFilter';
+import { Filter as OFilter } from '@oafz/mediator-react/components/Filter';
 import { Controller, ControllerProps, FieldValues, Path, PathValue } from 'react-hook-form';
 
 export type FilterProps<T extends FieldValues> = {
