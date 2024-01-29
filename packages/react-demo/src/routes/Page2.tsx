@@ -1,26 +1,23 @@
-import { useEffect, useState } from 'react';
-import { queryChangedNotifier } from '@oafz/mediator-react/plugins/SearchChangePlugin';
-import { useNavigate } from 'react-router-dom';
+import { navigateRequester } from '@oafz/mediator-react/plugins/NavigatePlugin';
 import { Paginate } from '../components/Paginate';
-import { Filter } from '../components/Filter';
+import { Filter, createFilterItem } from '../components/Filter';
 import { Dataview } from '../components/DataView';
+import { Button } from '@fluentui/react-components';
 
 export function Page2() {
-  const [data, setData] = useState<object>({});
-  const nav = useNavigate();
-
-  useEffect(() => {
-    return queryChangedNotifier.receive(async ({ payload }) => {
-      setData(payload);
-    });
-  }, [setData]);
-
   return (
     <>
-      <h2>{JSON.stringify(data)}</h2>
-      <button onClick={() => nav('/page1?foo=bar', { replace: true })}>nav to page 1</button>
+      <Button onClick={() => navigateRequester.send('/page1')} children={'nav to page 1'} appearance="transparent" />
 
-      <Filter<FilterType> fields={[{ fieldId: 'a' }]} />
+      <Filter<FilterType>
+        items={[
+          createFilterItem<FilterType>({ fieldId: 'a' }),
+          createFilterItem<FilterType>({ fieldId: 'b' }),
+          createFilterItem<FilterType>({ fieldId: 'c' }),
+          createFilterItem<FilterType>({ fieldId: 'd' }),
+          createFilterItem<FilterType>({ fieldId: 'e' })
+        ]}
+      />
       <Dataview<Data>
         columns={[
           { columnId: 'id' },
@@ -44,6 +41,6 @@ export function Page2() {
   );
 }
 
-type FilterType = { a: string; b: number };
+type FilterType = { a: string; b: number; c: string; d: number; e: string };
 
 type Data = { id: number; a: string; b: number };

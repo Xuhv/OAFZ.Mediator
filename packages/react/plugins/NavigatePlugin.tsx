@@ -5,7 +5,7 @@ import { createRequestEmitter } from '@oafz/mediator';
 export const navigateRequester = createRequestEmitter<
   | string
   | {
-      toOrDelta: string | Partial<Path>;
+      path: string | Partial<Path>;
       options?: NavigateOptions;
     }
   | number,
@@ -17,7 +17,7 @@ export function NavigatePlugin() {
 
   useEffect(() => {
     return navigateRequester.receive(async ({ payload }) => {
-      if (typeof payload === 'object') nav(payload.toOrDelta, payload.options);
+      if (typeof payload === 'object') nav(payload.path, payload.options);
       // @ts-expect-error
       else nav(payload);
     });
