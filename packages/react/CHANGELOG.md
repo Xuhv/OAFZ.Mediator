@@ -1,10 +1,16 @@
 # @oafz/mediator-react
 
+## 0.3.1
+
+### Patch Changes
+
+- bugfix
+
 ## 0.3.0
 
 ### Minor Changes
 
-- break: 
+- break:
   - navigateRequester
   - Filter
 - new plugin: DefaultPagePlugin

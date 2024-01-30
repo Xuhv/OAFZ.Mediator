@@ -1,14 +1,5 @@
 import { ReactNode, useEffect, useRef, useState } from 'react';
-import {
-  Control,
-  Controller,
-  ControllerProps,
-  FieldValues,
-  Path,
-  PathValue,
-  UseFormProps,
-  useForm
-} from 'react-hook-form';
+import { Controller, ControllerProps, FieldValues, Path, PathValue, UseFormProps, useForm } from 'react-hook-form';
 import { changeQueryRequester, queryChangedNotifier } from '../plugins/SearchChangePlugin';
 import { mergeRefs } from '../utils/mergeRefs';
 import { omit } from 'lodash-es';
@@ -19,9 +10,6 @@ export interface ItemProps<T extends FieldValues> {
    * @default ""
    */
   defaultValue?: PathValue<T, Path<T>>;
-  /**
-   * Don't use with `label` together.
-   */
   render?: ControllerProps<T, Path<T>>['render'];
 }
 
@@ -54,7 +42,16 @@ export interface FilterProps<T extends FieldValues>
  */
 export function Filter<T extends FieldValues>(props: FilterProps<T>) {
   const { control, handleSubmit, reset, setValue, getValues } = useForm(props.useFormProps);
-  const formProps = omit(props, ['useFormProps', 'formRender', 'submitButton', 'resetButton']);
+  const formProps = omit(props, [
+    'useFormProps',
+    'items',
+    'limit',
+    'submitButton',
+    'resetButton',
+    'expandButton',
+    'collapseButton',
+    'buttonGroupClassName'
+  ]);
   const _formRef = useRef<HTMLFormElement>(null);
   const formRef = props.ref ? mergeRefs(props.ref, _formRef) : _formRef;
   const [itemsExpanded, setItemsExpanded] = useState(false);
@@ -118,9 +115,9 @@ export function Filter<T extends FieldValues>(props: FilterProps<T>) {
       ))}
 
       <span className={props.buttonGroupClassName}>
-        {props.submitButton ? <span onClick={filter}>{props.submitButton}</span> : 'submit'}
+        <span onClick={filter}>{props.submitButton ?? 'submit'}</span>
 
-        {props.resetButton ? <span onClick={resetAndFilter}>{props.resetButton}</span> : 'reset'}
+        <span onClick={resetAndFilter}>{props.resetButton ?? 'reset'}</span>
 
         {props.items.length > limit && <ExpandOrCollapseButton />}
       </span>

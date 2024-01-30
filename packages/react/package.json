@@ -1,6 +1,6 @@
 {
   "name": "@oafz/mediator-react",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "dependencies": {
     "@oafz/mediator": "workspace:*",
     "@oafz/react-paginate": "workspace:*"
