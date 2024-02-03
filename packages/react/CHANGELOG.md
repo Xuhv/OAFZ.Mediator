@@ -1,5 +1,14 @@
 # @oafz/mediator-react
 
+## 0.4.0
+
+### Minor Changes
+
+- Updated dependencies
+  - @oafz/mediator@0.4.3
+
+- break: replace react-paginate with a custom component
+
 ## 0.3.1
 
 ### Patch Changes

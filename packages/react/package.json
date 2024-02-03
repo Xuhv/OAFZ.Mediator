@@ -1,9 +1,8 @@
 {
   "name": "@oafz/mediator-react",
-  "version": "0.3.1",
+  "version": "0.4.0",
   "dependencies": {
-    "@oafz/mediator": "workspace:*",
-    "@oafz/react-paginate": "workspace:*"
+    "@oafz/mediator": "workspace:*"
   },
   "devDependencies": {
     "@types/lodash-es": "^4.17.12",
