@@ -36,7 +36,7 @@ export function Page2() {
           )
         }
       />
-      <Paginate pageCount={10} />
+      <Paginate totalItems={100} itemsPerPage={10} />
     </>
   );
 }
