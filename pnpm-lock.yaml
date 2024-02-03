@@ -22,9 +22,6 @@ importers:
       '@oafz/mediator':
         specifier: workspace:*
         version: link:../core
-      '@oafz/react-paginate':
-        specifier: workspace:*
-        version: link:../react-paginate
     devDependencies:
       '@types/lodash-es':
         specifier: ^4.17.12
