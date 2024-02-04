@@ -17,7 +17,7 @@ export function Paginate({ itemsPerPage, totalItems }: { itemsPerPage: number; t
       )}
       nextLabel={d => <Button appearance="transparent" icon={<ArrowNext24Regular />} tabIndex={-1} disabled={d} />}
       breakLabel={<Button appearance="transparent" icon={<MoreHorizontal24Regular />} tabIndex={-1} />}
-      className="my-paginate"
+      style={{ display: 'flex', listStyleType: 'none', gap: '4px' }}
     />
   );
 }
