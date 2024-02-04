@@ -133,7 +133,7 @@ export function Paginate({
       setCurrentPage(p);
       onPageChange?.(p);
     });
-  }, []);
+  }, [currentPage, onPageChange, pageField, totalPages]);
 
   const handleClick = (page: number) => {
     changeQueryRequester.send({ query: { [pageField]: String(page) }, mode: 'merge' });
