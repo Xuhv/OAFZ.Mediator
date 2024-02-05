@@ -186,8 +186,9 @@ export function Paginate({
       const nextPage = Math.floor((leftBound + pageRange + totalPages - pageMarginDisplayed) / 2);
       pages.push(
         <li key="endEllipsis" className={breakLabelClassName}>
-          <a onClick={() => handleClick(nextPage)} tabIndex={0} aria-label={breakAriaLabel}></a>
-          {breakLabel}
+          <a onClick={() => handleClick(nextPage)} tabIndex={0} aria-label={breakAriaLabel}>
+            {breakLabel}
+          </a>
         </li>
       );
     }
