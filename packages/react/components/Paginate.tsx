@@ -1,6 +1,8 @@
-import { DetailedHTMLProps, HTMLAttributes, ReactNode, useEffect, useState } from 'react';
+import { DetailedHTMLProps, HTMLAttributes, ReactNode, SyntheticEvent, useEffect, useRef, useState } from 'react';
 import { changeQueryRequester, queryChangedNotifier } from '../plugins/SearchChangePlugin';
 import { mergeClasses } from '../utils/mergeClasses';
+import { isEnterOrSpace } from '../utils/keyboard';
+import { curry } from 'lodash-es';
 
 export interface PaginateProps extends DetailedHTMLProps<HTMLAttributes<HTMLUListElement>, HTMLUListElement> {
   /**
@@ -123,6 +125,7 @@ export function Paginate({
 }: PaginateProps) {
   const [currentPage, setCurrentPage] = useState(1);
   const totalPages = Math.ceil(totalItems / itemsPerPage);
+  const activeRef = useRef<HTMLAnchorElement | null>(null);
 
   useEffect(() => {
     return queryChangedNotifier.receive(async ({ payload }) => {
@@ -135,9 +138,16 @@ export function Paginate({
     });
   }, [currentPage, onPageChange, pageField, totalPages]);
 
-  const handleClick = (page: number) => {
-    changeQueryRequester.send({ query: { [pageField]: String(page) }, mode: 'merge' });
+  const handler = async (setFocus: boolean, canOperate: boolean, page: number, event: SyntheticEvent | null) => {
+    if (!canOperate || (event?.type === 'keydown' && !isEnterOrSpace(event as React.KeyboardEvent))) return;
+    await changeQueryRequester.send({ query: { [pageField]: String(page) }, mode: 'merge' });
+    if (setFocus) activeRef.current = event!.target as HTMLAnchorElement;
+    activeRef.current!.focus();
   };
+
+  const handleCurry = curry(handler);
+  const pageItemHandler = handleCurry(false, true);
+  const previousAndNextHandler = handleCurry(true);
 
   const renderPaginationItems = () => {
     const pages = [];
@@ -149,10 +159,12 @@ export function Paginate({
       return (
         <li className={selected ? mergeClasses(pageLabelClassName, activePageLabelClassName) : pageLabelClassName}>
           <a
-            onClick={() => handleClick(page)}
+            onClick={pageItemHandler(page)}
+            onKeyDown={pageItemHandler(page)}
             tabIndex={0}
             aria-current={selected ? 'page' : undefined}
             aria-label={pageAriaLabel(page)}
+            ref={selected ? activeRef : undefined}
           >
             {pageLabelRender(page, selected)}
           </a>
@@ -170,7 +182,12 @@ export function Paginate({
       const nextPage = Math.floor((leftBound + pageMarginDisplayed) / 2);
       pages.unshift(
         <li key="startEllipsis" className={breakLabelClassName}>
-          <a onClick={() => handleClick(nextPage)} tabIndex={0} aria-label={breakAriaLabel}>
+          <a
+            onClick={pageItemHandler(nextPage)}
+            onKeyDown={pageItemHandler(nextPage)}
+            tabIndex={0}
+            aria-label={breakAriaLabel}
+          >
             {breakLabel}
           </a>
         </li>
@@ -186,7 +203,12 @@ export function Paginate({
       const nextPage = Math.floor((leftBound + pageRange + totalPages - pageMarginDisplayed) / 2);
       pages.push(
         <li key="endEllipsis" className={breakLabelClassName}>
-          <a onClick={() => handleClick(nextPage)} tabIndex={0} aria-label={breakAriaLabel}>
+          <a
+            onClick={pageItemHandler(nextPage)}
+            onKeyDown={pageItemHandler(nextPage)}
+            tabIndex={0}
+            aria-label={breakAriaLabel}
+          >
             {breakLabel}
           </a>
         </li>
@@ -202,7 +224,6 @@ export function Paginate({
     //#region previous and next
     const previousDisabled = currentPage === 1;
     const previous = typeof previousLabel === 'function' ? previousLabel(previousDisabled) : previousLabel;
-    const previousHandler = previousDisabled ? undefined : () => handleClick(currentPage - 1);
     pages.unshift(
       <li
         key={'previous'}
@@ -211,7 +232,8 @@ export function Paginate({
         }
       >
         <a
-          onClick={previousHandler}
+          onClick={previousAndNextHandler(!previousDisabled, currentPage - 1)}
+          onKeyDown={previousAndNextHandler(!previousDisabled, currentPage - 1)}
           aria-disabled={previousDisabled}
           tabIndex={previousDisabled ? -1 : 0}
           aria-label={previousAriaLabel}
@@ -223,14 +245,14 @@ export function Paginate({
 
     const nextDisabled = currentPage === totalPages;
     const next = typeof nextLabel === 'function' ? nextLabel(nextDisabled) : nextLabel;
-    const nextHandler = nextDisabled ? undefined : () => handleClick(currentPage + 1);
     pages.push(
       <li
         key={'next'}
         className={nextDisabled ? mergeClasses(nextLabelClassName, disabledLabelClassName) : nextLabelClassName}
       >
         <a
-          onClick={nextHandler}
+          onClick={previousAndNextHandler(!nextDisabled, currentPage + 1)}
+          onKeyDown={previousAndNextHandler(!nextDisabled, currentPage + 1)}
           aria-disabled={nextDisabled}
           tabIndex={nextDisabled ? -1 : 0}
           aria-label={nextAriaLabel}
