@@ -1,5 +1,11 @@
 # @oafz/mediator-react
 
+## 0.4.2
+
+### Patch Changes
+
+- bugfix: paginate
+
 ## 0.4.1
 
 ### Patch Changes
