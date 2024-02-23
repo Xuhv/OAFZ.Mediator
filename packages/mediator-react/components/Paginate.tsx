@@ -130,7 +130,8 @@ export function Paginate({
   useEffect(() => {
     return queryChangedNotifier.receive(async ({ payload }) => {
       const p = Number(payload[pageField]) || 1;
-      if (p < 1 || p > totalPages) throw new Error(`Invalid page: ${p}`);
+      // FIXME: it will report an error after in the first render
+      if (p < 1 || p > totalPages) console.error(new Error(`Invalid page: ${p}`));
       if (p === currentPage) return;
 
       setCurrentPage(p);
@@ -140,7 +141,11 @@ export function Paginate({
 
   const handler = async (setFocus: boolean, canOperate: boolean, page: number, event: SyntheticEvent | null) => {
     if (!canOperate || (event?.type === 'keydown' && !isEnterOrSpace(event as React.KeyboardEvent))) return;
-    await changeQueryRequester.send({ query: { [pageField]: String(page) }, mode: 'merge' });
+    await changeQueryRequester.send({
+      query: { [pageField]: String(page) },
+      mode: 'merge',
+      concurrencyCheck: { [pageField]: String(currentPage) }
+    });
     if (setFocus) activeRef.current = event!.target as HTMLAnchorElement;
     activeRef.current!.focus();
   };

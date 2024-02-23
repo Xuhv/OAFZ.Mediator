@@ -14,7 +14,14 @@ export const changeQueryRequester = createRequestEmitter<
      * @default "replace"
      */
     mode?: 'replace' | 'merge';
+    /**
+     * emit query object even if there is no change
+     */
     force?: boolean;
+    /**
+     * in case of concurrent modification, it is necessary to check the current state is expected.
+     */
+    concurrencyCheck?: Partial<QueryState>;
   },
   void
 >({ name: 'changeQuery' });
@@ -58,10 +65,18 @@ export function SearchParamsPlugin() {
       queryChangedNotifier.send(query);
     });
 
-    return changeQueryRequester.receive(async ({ payload: { query, force, mode } }) => {
+    return changeQueryRequester.receive(async ({ payload: { query, force, mode, concurrencyCheck } }) => {
       let finalQuery: QueryState = {};
       if (mode === 'merge') finalQuery = { ...searchToObject(searchParams), ...query };
       else finalQuery = query;
+
+      if (
+        concurrencyCheck &&
+        Object.entries(concurrencyCheck).some(
+          ([key, value]) => !isEqual(searchRef.current[key], value) && searchRef.current[key] !== undefined
+        )
+      )
+        return;
 
       if (!isEqual(finalQuery, searchRef.current) || force) {
         searchRef.current = finalQuery;
