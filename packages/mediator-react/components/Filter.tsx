@@ -2,7 +2,6 @@ import { ReactNode, useEffect, useRef, useState } from 'react';
 import { Controller, ControllerProps, FieldValues, Path, PathValue, UseFormProps, useForm } from 'react-hook-form';
 import { changeQueryRequester, queryChangedNotifier } from '../plugins/SearchChangePlugin';
 import { mergeRefs } from '../utils/mergeRefs';
-import { omit } from 'lodash-es';
 
 export interface ItemProps<T extends FieldValues> {
   fieldId: Path<T>;
@@ -40,30 +39,27 @@ export interface FilterProps<T extends FieldValues>
  * @param props
  * @returns
  */
-export function Filter<T extends FieldValues>(props: FilterProps<T>) {
-  const { control, handleSubmit, reset, setValue, getValues } = useForm(props.useFormProps);
-  const formProps = omit(props, [
-    'useFormProps',
-    'items',
-    'limit',
-    'submitButton',
-    'resetButton',
-    'expandButton',
-    'collapseButton',
-    'buttonGroupClassName'
-  ]);
+export function Filter<T extends FieldValues>({
+  useFormProps,
+  items,
+  ref,
+  limit = 4,
+  submitButton,
+  resetButton,
+  expandButton,
+  collapseButton,
+  buttonGroupClassName,
+  ...formProps
+}: FilterProps<T>) {
+  const { control, handleSubmit, reset, setValue, getValues } = useForm(useFormProps);
   const _formRef = useRef<HTMLFormElement>(null);
-  const formRef = props.ref ? mergeRefs(props.ref, _formRef) : _formRef;
-  const [itemsExpanded, setItemsExpanded] = useState(false);
-  const limit = props.limit ?? 4;
-  const items = itemsExpanded ? props.items : props.items.slice(0, limit - 1);
+  const formRef = ref ? mergeRefs(ref, _formRef) : _formRef;
+  const [isExpanded, setIsExpanded] = useState(false);
+  const itemsVisible = isExpanded ? items : items.slice(0, limit - 1);
 
   const ExpandOrCollapseButton = () => {
-    if (itemsExpanded) {
-      return <span onClick={() => setItemsExpanded(false)}>{props.collapseButton ?? 'collapse'}</span>;
-    } else {
-      return <span onClick={() => setItemsExpanded(true)}>{props.expandButton ?? 'expand'}</span>;
-    }
+    if (isExpanded) return <span onClick={() => setIsExpanded(false)}>{collapseButton ?? 'collapse'}</span>;
+    else return <span onClick={() => setIsExpanded(true)}>{expandButton ?? 'expand'}</span>;
   };
 
   useEffect(() => {
@@ -95,7 +91,7 @@ export function Filter<T extends FieldValues>(props: FilterProps<T>) {
         changeQueryRequester.send({ query: data, force: true, mode: 'merge' });
       })}
     >
-      {items.map(({ fieldId, render, defaultValue }) => (
+      {itemsVisible.map(({ fieldId, render, defaultValue }) => (
         <Controller<T, Path<T>>
           key={fieldId}
           name={fieldId}
@@ -114,12 +110,10 @@ export function Filter<T extends FieldValues>(props: FilterProps<T>) {
         />
       ))}
 
-      <span className={props.buttonGroupClassName}>
-        <span onClick={filter}>{props.submitButton ?? 'submit'}</span>
-
-        <span onClick={resetAndFilter}>{props.resetButton ?? 'reset'}</span>
-
-        {props.items.length > limit - 1 && <ExpandOrCollapseButton />}
+      <span className={buttonGroupClassName}>
+        <span onClick={filter}>{submitButton ?? 'submit'}</span>
+        <span onClick={resetAndFilter}>{resetButton ?? 'reset'}</span>
+        {items.length > limit - 1 && <ExpandOrCollapseButton />}
       </span>
     </form>
   );
