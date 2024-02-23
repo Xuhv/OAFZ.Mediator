@@ -56,7 +56,7 @@ export function Filter<T extends FieldValues>(props: FilterProps<T>) {
   const formRef = props.ref ? mergeRefs(props.ref, _formRef) : _formRef;
   const [itemsExpanded, setItemsExpanded] = useState(false);
   const limit = props.limit ?? 4;
-  const items = itemsExpanded ? props.items : props.items.slice(0, limit);
+  const items = itemsExpanded ? props.items : props.items.slice(0, limit - 1);
 
   const ExpandOrCollapseButton = () => {
     if (itemsExpanded) {
@@ -119,7 +119,7 @@ export function Filter<T extends FieldValues>(props: FilterProps<T>) {
 
         <span onClick={resetAndFilter}>{props.resetButton ?? 'reset'}</span>
 
-        {props.items.length > limit && <ExpandOrCollapseButton />}
+        {props.items.length > limit - 1 && <ExpandOrCollapseButton />}
       </span>
     </form>
   );
