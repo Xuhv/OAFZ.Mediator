@@ -11,13 +11,14 @@ import {
 } from '@fluentui/react-components';
 import { DataView as ODataView, DataViewProps as ODataViewProps } from '@oafz/mediator-react/components/DataView';
 import { omit } from 'lodash-es';
+import { useRef } from 'react';
 
 type RowData = { [k: string]: any };
 
 interface CreateTableColumnOptionsX<T extends RowData>
   extends Partial<Omit<CreateTableColumnOptions<T>, 'renderCell' | 'columnId'>> {
   columnId: keyof T | 'action';
-  renderCell?: (item: T, reload: () => void) => React.ReactNode;
+  renderCell?: (item: T, reload?: () => void) => React.ReactNode;
 }
 
 type DataviewProps<T extends RowData> = Omit<DataGridProps, 'items' | 'columns'> & {
@@ -27,6 +28,7 @@ type DataviewProps<T extends RowData> = Omit<DataGridProps, 'items' | 'columns'>
 
 export function Dataview<T extends RowData>(props: DataviewProps<T>) {
   const dataGridProps = omit(props, 'dataResolver');
+  const reloadRef = useRef<() => void | undefined>();
 
   const columns = props.columns.map(column => {
     if (!column.renderHeaderCell) {
@@ -40,8 +42,9 @@ export function Dataview<T extends RowData>(props: DataviewProps<T>) {
 
   return (
     <ODataView
+      ref={reloadRef}
       dataResolver={props.dataResolver}
-      render={(records, reload) => (
+      render={records => (
         <DataGrid {...dataGridProps} items={records} columns={columns}>
           <DataGridHeader>
             <DataGridRow>{({ renderHeaderCell }) => <DataGridHeaderCell children={renderHeaderCell()} />}</DataGridRow>
@@ -51,7 +54,7 @@ export function Dataview<T extends RowData>(props: DataviewProps<T>) {
               <DataGridRow>
                 {({ renderCell }) => (
                   <DataGridCell>
-                    {(renderCell as CreateTableColumnOptionsX<T>['renderCell'])?.(item, reload)}
+                    {(renderCell as CreateTableColumnOptionsX<T>['renderCell'])?.(item, reloadRef.current)}
                   </DataGridCell>
                 )}
               </DataGridRow>
